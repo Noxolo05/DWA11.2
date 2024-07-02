@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tally App with Redux-inspired Store</title>
+</head>
+<body>
+  <h1>Redux-inspired Store for Tally App</h1>
+  <p>Open the console to see the state changes.</p>
+  
+  <script>
+    // Initial state
+    const initialState = {
+      count: 0
+    };
+
+    // Action types
+    const ADD = 'ADD';
+    const SUBTRACT = 'SUBTRACT';
+    const RESET = 'RESET';
+
+    // Reducer function
+    function reducer(state = initialState, action) {
+      switch (action.type) {
+        case ADD:
+          return { ...state, count: state.count + 1 };
+        case SUBTRACT:
+          return { ...state, count: state.count - 1 };
+        case RESET:
+          return { ...state, count: 0 };
+        default:
+          return state;
+      }
+    }
+
+    // Create the store
+    function createStore(reducer) {
+      let state;
+      let listeners = [];
+
+      const getState = () => state;
+
+      const dispatch = (action) => {
+        state = reducer(state, action);
+        listeners.forEach(listener => listener());
+      };
+
+      const subscribe = (listener) => {
+        listeners.push(listener);
+        return () => {
+          listeners = listeners.filter(l => l !== listener);
+        };
+      };
+
+      // Initialize the state
+      dispatch({});
+
+      return { getState, dispatch, subscribe };
+    }
+
+    // Create a store instance
+    const store = createStore(reducer);
+
+    // Subscribe to state changes
+    store.subscribe(() => {
+      console.log('State changed:', store.getState());
+    });
+
+    // Test cases in Gherkin syntax
+    console.log('SCENARIO: Increment the counter by one');
+    console.log('GIVEN no interactions have been performed yet');
+    console.log('WHEN the “getState” method is run');
+    console.log('AND the result is logged to the console');
+    console.log('AND the browser console is open');
+    console.log('THEN the state should show a count of 0');
+    console.log(store.getState()); // { count: 0 }
+
+    console.log('SCENARIO: Increment the counter by one');
+    console.log('GIVEN no interactions have been performed yet');
+    console.log('WHEN an “ADD” action is dispatched');
+    store.dispatch({ type: ADD });
+    console.log('AND another “ADD” action is dispatched');
+    store.dispatch({ type: ADD });
+    console.log('AND the browser console is open');
+    console.log('THEN the state should show a count of 2');
+    console.log(store.getState()); // { count: 2 }
+
+    console.log('SCENARIO: Increment the counter by one');
+    console.log('GIVEN the current count in the state is 2');
+    console.log('WHEN a “SUBTRACT” action is dispatched');
+    store.dispatch({ type: SUBTRACT });
+    console.log('AND the browser console is open');
+    console.log('THEN the state should display a count of 1');
+    console.log(store.getState()); // { count: 1 }
+
+    console.log('SCENARIO: Resetting the Tally Counter');
+    console.log('GIVEN the current count in the state is 1');
+    console.log('WHEN a “RESET” action is dispatched');
+    store.dispatch({ type: RESET });
+    console.log('AND the browser console is open');
+    console.log('THEN the state should display a count of 0');
+    console.log(store.getState()); // { count: 0 }
+  </script>
+</body>
+</html>
